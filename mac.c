@@ -12,8 +12,8 @@ int get_mac(char *mac_str, int len)
     struct ifreq  ifr;
     struct ifconf ifc;
     int success = 0;
-    unsigned char mac[6]    = {0x00};
-    unsigned char buf[1024] = {0x00};
+    char buf[1024]       = {0x00};
+    unsigned char mac[6] = {0x00};
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock == -1)
