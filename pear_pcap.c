@@ -50,6 +50,7 @@ int pr_pcap_start(pr_pcap_t *pt)
 
     PEAR_LOG("device = %s\n", pt->device);
 
+    //if ((pt->pd = pcap_open_live(pt->device, 10, 0, 5000, pt->errbuf)) == NULL)
     if ((pt->pd = pcap_open_live(pt->device, pt->snaplen, pt->promisc, pt->timeout, pt->errbuf)) == NULL)
     {
         PEAR_LOG("pcap_open_live error: %s\n", pt->errbuf);
@@ -101,6 +102,7 @@ int pr_pcap_start(pr_pcap_t *pt)
 
 static void *pr_pcap_run(void *arg)
 {
+    int i = 0;
     char      *ptr = NULL;
     pr_pcap_t *pt  = NULL;
 
@@ -110,6 +112,7 @@ static void *pr_pcap_run(void *arg)
 
     for ( ; ; )
     {
+        printf("i: %d\n", i++);
         ptr = (char *) pcap_next(pt->pd, &hdr);
 
         if (ptr == NULL)
@@ -119,10 +122,12 @@ static void *pr_pcap_run(void *arg)
         }
 
         PEAR_LOG("catch: len: %d\n", hdr.len);
+
         if (pt->handler != NULL && pt->handler->handle != NULL)
         {
             pt->handler->handle(pt->handler, &hdr, ptr);
         }
+
     }
 }
 

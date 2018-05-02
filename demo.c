@@ -3,12 +3,15 @@
 #include <unistd.h>
 
 #include "pear_pcap.h"
+#include "rate.h"
 
 int main(int argc, char *argv[])
 {
     pr_pcap_t *pt = NULL;
 
-    pt = pr_new_pcap(NULL, CMD_DOWNLOAD, 10, 0, 500, NULL);
+    rate_handler_t *rhl = new_rate_handler();
+
+    pt = pr_new_pcap(NULL, CMD_DOWNLOAD, 100, 0, 5000, (pr_pcap_handler_t *)rhl);
     if (pt == NULL)
     {
         printf("pr_new_pcap error\n");

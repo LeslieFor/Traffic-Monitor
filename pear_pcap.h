@@ -8,8 +8,10 @@
 #define PEAR_LOG(format, ...) printf(format, ##__VA_ARGS__)
 
 
+#define CMD_TCP      "tcp"
 #define CMD_UPLOAD   "tcp and src 192.168.99.181"
-#define CMD_DOWNLOAD "tcp and dst 192.168.99.181"
+//#define CMD_DOWNLOAD "tcp and dst 192.168.99.181"
+#define CMD_DOWNLOAD "tcp and dst 172.31.190.206"
 
 
 /*
