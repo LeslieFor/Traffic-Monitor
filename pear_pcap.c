@@ -2,9 +2,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <signal.h>
 #include <memory.h>
-//#include <arpa/inet.h>
 #include <pthread.h>
+//#include <arpa/inet.h>
 
 #include "pear_pcap.h"
 
@@ -37,6 +38,14 @@ pr_pcap_t *pr_new_pcap(char *device, char *cmd, int snaplen, int promisc, int ti
 
 int pr_pcap_start(pr_pcap_t *pt)
 {
+    int       err;
+    sigset_t  mask;
+    sigset_t  oldmask;
+    pthread_t ntid;
+
+    char str1[16] = {0x00};
+    char str2[16] = {0x00};
+
     struct bpf_program fcode;
 
     if (pt->device == NULL)
@@ -87,9 +96,19 @@ int pr_pcap_start(pr_pcap_t *pt)
 
     PEAR_LOG("datalink = %d\n", pt->datalink);
 
-    pthread_t ntid;
-    int err;
+    sigemptyset(&mask);
+    sigfillset(&mask);
+    sigdelset(&mask, SIGINT);
+
+    if (pthread_sigmask(SIG_BLOCK, &mask, &oldmask) != 0)
+    {
+        return -1;
+    }
+
     err = pthread_create(&ntid, NULL, pr_pcap_run, (void *)pt);
+
+    pthread_sigmask(SIG_BLOCK, &oldmask, NULL);
+
     if (err != 0)
     {
         PEAR_LOG("ptherad_create error\n");
