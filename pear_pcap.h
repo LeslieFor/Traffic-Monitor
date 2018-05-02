@@ -19,7 +19,7 @@
 
 typedef struct pr_pcap_handler_s pr_pcap_handler_t;
 
-typedef int (*pr_pcap_handler_p)(pr_pcap_handler_t *, struct pcap_pkthdr *, char *);
+typedef void *(*pr_pcap_handler_p)(pr_pcap_handler_t *, struct pcap_pkthdr *, char *);
 
 struct pr_pcap_handler_s {
     pr_pcap_handler_p handle;
