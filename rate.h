@@ -8,7 +8,7 @@
 typedef struct rate_s rate_t;
 
 struct rate_s {
-    float size_cur;
+    int   size_cur;
     float rate;
     float rate_max;
 };

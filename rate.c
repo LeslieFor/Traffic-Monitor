@@ -24,10 +24,16 @@ rate_handler_t *new_rate_handler()
     hlr->size_ttl = 0;
 
     hlr->rate_02.rate     = 0;
-    hlr->rate_10.rate_max = 0;
+    hlr->rate_02.rate_max = 0;
+    hlr->rate_02.size_cur = 0;
+
     hlr->rate_10.rate     = 0;
-    hlr->rate_40.rate_max = 0;
+    hlr->rate_10.rate_max = 0;
+    hlr->rate_10.size_cur = 0;
+
     hlr->rate_40.rate     = 0;
+    hlr->rate_40.rate_max = 0;
+    hlr->rate_40.size_cur = 0;
 
     gettimeofday(&hlr->ts, NULL);
 
@@ -39,6 +45,7 @@ void *rate_handle(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, char *ptr)
 {
     rate_node_t *temp   = NULL;
     rate_node_t *popn   = NULL;
+    rate_node_t *tail   = NULL;
     rate_handler_t *rhl = NULL;
 
     rhl = (rate_handler_t *) phl;
@@ -73,15 +80,37 @@ void *rate_handle(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, char *ptr)
     {
         popn = pop(rhl->q);
         put(rhl->q, temp);
+        tail = get_order(rhl->q, 4);
+
+        /*rate 10 handler*/
+        rhl->rate_10.size_cur += temp->size;
+        rhl->rate_10.size_cur -= popn->size;
+
+        rhl->rate_10.rate = rhl->rate_10.size_cur / (temp->ts.tv_sec - tail->ts.tv_sec + (temp->ts.tv_usec - tail->ts.tv_usec) * 0.001 * 0.001);
+        rhl->rate_10.rate_max = rhl->rate_10.rate > rhl->rate_10.rate_max ? rhl->rate_10.rate : rhl->rate_10.rate_max;
+
         free(popn);
     }
     else
     {
         put(rhl->q, temp);
+        if (rhl->q->size == 0)
+        {
+            return NULL;
+        }
+        tail = get_tail(rhl->q);
+
+        /*rate 10 handler*/
+        rhl->rate_10.size_cur += temp->size;
+        rhl->rate_10.rate = rhl->rate_10.size_cur / (temp->ts.tv_sec - tail->ts.tv_sec + (temp->ts.tv_usec - tail->ts.tv_usec) * 0.001 * 0.001);
+        rhl->rate_10.rate_max = rhl->rate_10.rate > rhl->rate_10.rate_max ? rhl->rate_10.rate : rhl->rate_10.rate_max;
+
     }
 
+    printf("rate； %f\t, rate_max: %f\n", rhl->rate_10.rate, rhl->rate_10.rate_max);
+    sleep(1);
 
-    return NULL;   
+    return NULL;
 }
 
 
