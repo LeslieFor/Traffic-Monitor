@@ -27,4 +27,7 @@ void *get_head(queue_t *q);
 void *get_tail(queue_t *q);
 void *get_order(queue_t *q, int index);
 
+void *get_order_tail(queue_t *q, int index);
+void *get_order_head(queue_t *q, int index);
+
 #endif

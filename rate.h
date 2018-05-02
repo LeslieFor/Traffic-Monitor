@@ -1,9 +1,10 @@
 #ifndef _PEAR_RATE_H_
 #define _PEAR_RATE_H_
 
-
 #include <time.h>
+
 #include "queue.h"
+#include "pear_pcap.h"
 
 typedef struct rate_s rate_t;
 

@@ -120,9 +120,29 @@ void *pop(queue_t *q)
 
 
 /*
+ * From tail to head
  * Notice: First Index is 0
  */
-void *get_order(queue_t *q, int index)
+void *get_order_tail(queue_t *q, int index)
+{
+    int i = 0;
+    node_t *temp = NULL;
+
+    if (index + 1 > q->size && index > 0)
+    {
+        return NULL;
+    }
+
+    for (temp = q->tail; i < index; i++, temp = temp->prev){;}
+
+    return temp->data;
+}
+
+/*
+ * From head to tail
+ * Notice: First Index is 0
+ */
+void *get_order_head(queue_t *q, int index)
 {
     int i = 0;
     node_t *temp = NULL;

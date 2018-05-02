@@ -102,7 +102,6 @@ int pr_pcap_start(pr_pcap_t *pt)
 
 static void *pr_pcap_run(void *arg)
 {
-    int i = 0;
     char      *ptr = NULL;
     pr_pcap_t *pt  = NULL;
 
@@ -112,7 +111,6 @@ static void *pr_pcap_run(void *arg)
 
     for ( ; ; )
     {
-        printf("i: %d\n", i++);
         ptr = (char *) pcap_next(pt->pd, &hdr);
 
         if (ptr == NULL)
