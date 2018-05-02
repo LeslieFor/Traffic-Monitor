@@ -43,8 +43,10 @@ int pr_pcap_start(pr_pcap_t *pt)
     sigset_t  oldmask;
     pthread_t ntid;
 
+/*
     char str1[16] = {0x00};
     char str2[16] = {0x00};
+*/
 
     struct bpf_program fcode;
 
@@ -89,7 +91,7 @@ int pr_pcap_start(pr_pcap_t *pt)
         PEAR_LOG("pcap_setfilter error: %s\n", pcap_geterr(pt->pd));
     }
 
-    if (pt->datalink = pcap_datalink(pt->pd) < 0)
+    if ((pt->datalink = pcap_datalink(pt->pd)) < 0)
     {
         PEAR_LOG("pcap_datalink error: %s\n", pcap_geterr(pt->pd));
     }
@@ -146,6 +148,8 @@ static void *pr_pcap_run(void *arg)
         }
 
     }
+
+    return NULL;
 }
 
 
