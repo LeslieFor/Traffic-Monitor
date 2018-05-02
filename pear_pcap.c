@@ -119,7 +119,7 @@ static void *pr_pcap_run(void *arg)
             gettimeofday(&hdr.ts, NULL);
         }
 
-        PEAR_LOG("catch: len: %d\n", hdr.len);
+        //PEAR_LOG("catch: len: %d\n", hdr.len);
 
         if (pt->handler != NULL && pt->handler->handle != NULL)
         {

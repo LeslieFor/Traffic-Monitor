@@ -8,11 +8,11 @@
 void *rate_handle(pr_pcap_handler_t *, struct pcap_pkthdr *, char *);
 void *rate_handle_timestamp(pr_pcap_handler_t *, struct pcap_pkthdr *, char *);
 
-rate_handler_t *new_rate_handler()
+rate_ctx_t *new_rate_ctx()
 {
-    rate_handler_t *hlr = NULL;
+    rate_ctx_t *hlr = NULL;
 
-    hlr = (rate_handler_t *) malloc(sizeof(rate_handler_t)); 
+    hlr = (rate_ctx_t *) malloc(sizeof(rate_ctx_t)); 
     if (hlr == NULL)
     {
         return NULL;
@@ -47,16 +47,20 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
     int   i    = 0;
     int   size = 0;
     float rate = 0;
-    rate_node_t *temp   = NULL;
-    rate_node_t *tail   = NULL;
-    rate_node_t *npop   = NULL;
-    rate_handler_t *rhl = NULL;
+    rate_node_t *temp = NULL;
+    rate_node_t *tail = NULL;
+    rate_node_t *npop = NULL;
+    rate_ctx_t  *rhl  = NULL;
 
-    rhl = (rate_handler_t *) phl;
+    rhl = (rate_ctx_t *) phl;
 
     /* Do not get any data, Only store data length */
-    //free(ptr);
+    if (ptr != NULL)
+    {
+        //free(ptr);
+    }
 
+    /* Store Data Length */
     tail = get_tail(rhl->q);
 
     if (tail != NULL && hdr->ts.tv_sec == tail->ts.tv_sec)
@@ -77,33 +81,35 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
         }
 
         put(rhl->q, temp);
-        sleep(2);
+
+        //sleep(1);
     }
 
-    /* Rate 2s */
-    tail = get_tail(rhl->q);
-    temp = (rate_node_t *) get_order_tail(rhl->q, 1);
-
-    if (temp == NULL)
+    /* Sum Rate 2s */
+    if (rhl->q->size < 2)
     {
         return NULL;
     }
+
+    tail = get_tail(rhl->q);
+    temp = (rate_node_t *) get_order_tail(rhl->q, 1);
 
     rate = tail->size + temp->size / (tail->ts.tv_sec - temp->ts.tv_sec + 1);
 
     rhl->rate_02.rate = rate;
     rhl->rate_02.rate_max = rate > rhl->rate_02.rate_max ? rate : rhl->rate_02.rate_max;
 
-    printf("### 02s Rate: %f rate_max :%f\n", rate, rhl->rate_02.rate_max);
+    //printf("### 02s Rate: %f rate_max :%f  sec: %ld\n", rate, rhl->rate_02.rate_max, tail->ts.tv_sec - temp->ts.tv_sec + 1);
 
     /* Rate 10s */
+    if (rhl->q->size < 10)
+    {
+        return NULL;
+    }
+
     for (i = 0; i < 10; i ++)
     {
         temp = get_order_tail(rhl->q, i);
-        if (temp == NULL)
-        {
-            return NULL;
-        }
         size += temp->size;
     }
 
@@ -112,7 +118,7 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
     rhl->rate_10.rate = rate;
     rhl->rate_10.rate_max = rate > rhl->rate_10.rate_max ? rate : rhl->rate_10.rate_max;
 
-    printf("### 10s Rate: %f rate_max :%f\n", rate, rhl->rate_10.rate_max);
+    //printf("### 10s Rate: %f rate_max :%f  sec: %ld\n", rate, rhl->rate_10.rate_max, tail->ts.tv_sec - temp->ts.tv_sec + 1);
     return NULL;
 }
 
@@ -122,9 +128,9 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
 //    rate_node_t *temp   = NULL;
 //    rate_node_t *popn   = NULL;
 //    rate_node_t *tail   = NULL;
-//    rate_handler_t *rhl = NULL;
+//    rate_ctx_t *rhl = NULL;
 //
-//    rhl = (rate_handler_t *) phl;
+//    rhl = (rate_ctx_t *) phl;
 //
 //    rhl->size_cur += hdr->len;
 //    rhl->size_ttl += hdr->len;
@@ -188,7 +194,3 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
 //
 //    return NULL;
 //}
-
-
-
-

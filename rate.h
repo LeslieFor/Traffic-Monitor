@@ -18,27 +18,27 @@ struct rate_s {
 typedef struct rate_node_s rate_node_t;
 
 struct rate_node_s {
-    int size;
+    int    size;
     struct timeval ts;
 };
 
 
-typedef struct rate_handler_s rate_handler_t;
+typedef struct rate_ctx_s rate_ctx_t;
 
-struct rate_handler_s {
+struct rate_ctx_s {
     pr_pcap_handler_t handler;
 
     rate_t  rate_02;
     rate_t  rate_10;
     rate_t  rate_40;
 
-    int size_cur;
-    int size_ttl;
-    struct timeval ts;
+    int     size_cur;
+    int     size_ttl;
+    struct  timeval ts;
     queue_t *q;
 };
 
 
-rate_handler_t *new_rate_handler();
+rate_ctx_t *new_rate_ctx();
 
 #endif
