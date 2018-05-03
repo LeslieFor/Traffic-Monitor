@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+#include "mac.h"
 #include "rate.h"
 #include "pear_pcap.h"
 
@@ -118,79 +119,70 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
     rhl->rate_10.rate = rate;
     rhl->rate_10.rate_max = rate > rhl->rate_10.rate_max ? rate : rhl->rate_10.rate_max;
 
+    /* Rate 10s */
+    if (rhl->q->size < 40)
+    {
+        return NULL;
+    }
+
+    size = 0;
+
+    for (i = 0; i < 40; i ++)
+    {
+        temp = get_order_tail(rhl->q, i);
+        size += temp->size;
+    }
+
+    rate = size / (tail->ts.tv_sec - temp->ts.tv_sec + 1);
+
+    rhl->rate_40.rate = rate;
+    rhl->rate_40.rate_max = rate > rhl->rate_40.rate_max ? rate : rhl->rate_40.rate_max;
+
+
     //printf("### 10s Rate: %f rate_max :%f  sec: %ld\n", rate, rhl->rate_10.rate_max, tail->ts.tv_sec - temp->ts.tv_sec + 1);
     return NULL;
 }
 
+int rate_init(rate_ctx_t **p)
+{
+    char cmd[512] = {0x00};
+    char mac[128] = {0x00};
+    pr_pcap_t *pt =  NULL;
 
-//void *rate_handle(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, char *ptr)
-//{
-//    rate_node_t *temp   = NULL;
-//    rate_node_t *popn   = NULL;
-//    rate_node_t *tail   = NULL;
-//    rate_ctx_t *rhl = NULL;
-//
-//    rhl = (rate_ctx_t *) phl;
-//
-//    rhl->size_cur += hdr->len;
-//    rhl->size_ttl += hdr->len;
-//
-//    printf("####total: %d, cur: %d\n"
-//           " hdr-sec: %ld \t rhl-sec: %ld\n", rhl->size_ttl, rhl->size_cur, hdr->ts.tv_sec, rhl->ts.tv_sec);
-//    if (hdr->ts.tv_sec - rhl->ts.tv_sec + (hdr->ts.tv_usec - rhl->ts.tv_usec) * 0.001 * 0.001 < 2)
-//    {
-//        return NULL;
-//    }
-//
-//    temp = (rate_node_t *) malloc(sizeof(*temp));
-//
-//    /* record current node data */
-//    temp->size = rhl->size_cur;
-//    temp->ts.tv_sec  = hdr->ts.tv_sec;
-//    temp->ts.tv_usec = hdr->ts.tv_usec;
-//
-//    /* record last node timeval */
-//    rhl->ts.tv_sec   = hdr->ts.tv_sec;
-//    rhl->ts.tv_usec  = hdr->ts.tv_usec;
-//
-//    printf("total: %d, cur: %d\n", rhl->size_ttl, rhl->size_cur);
-//
-//    /* reset next node data */
-//    rhl->size_cur = 0;
-//
-//    if (rhl->q->capacity -1 <= rhl->q->size)
-//    {
-//        popn = pop(rhl->q);
-//        put(rhl->q, temp);
-//        tail = get_order_tail(rhl->q, 4);
-//
-//        /*rate 10 handler*/
-//        rhl->rate_10.size_cur += temp->size;
-//        rhl->rate_10.size_cur -= popn->size;
-//
-//        rhl->rate_10.rate = rhl->rate_10.size_cur / (temp->ts.tv_sec - tail->ts.tv_sec + (temp->ts.tv_usec - tail->ts.tv_usec) * 0.001 * 0.001);
-//        rhl->rate_10.rate_max = rhl->rate_10.rate > rhl->rate_10.rate_max ? rhl->rate_10.rate : rhl->rate_10.rate_max;
-//
-//        free(popn);
-//    }
-//    else
-//    {
-//        put(rhl->q, temp);
-//        if (rhl->q->size == 0)
-//        {
-//            return NULL;
-//        }
-//        tail = get_tail(rhl->q);
-//
-//        /*rate 10 handler*/
-//        rhl->rate_10.size_cur += temp->size;
-//        rhl->rate_10.rate = rhl->rate_10.size_cur / (temp->ts.tv_sec - tail->ts.tv_sec + (temp->ts.tv_usec - tail->ts.tv_usec) * 0.001 * 0.001);
-//        rhl->rate_10.rate_max = rhl->rate_10.rate > rhl->rate_10.rate_max ? rhl->rate_10.rate : rhl->rate_10.rate_max;
-//
-//    }
-//
-//    printf("rate； %f\t, rate_max: %f\n", rhl->rate_10.rate, rhl->rate_10.rate_max);
-//    sleep(1);
-//
-//    return NULL;
-//}
+    if (get_mac(mac, 128) < 0)
+    {
+        printf("get_mac error\n");
+        exit(-1);
+    }
+
+    sprintf(cmd, "tcp and ether dst %s", mac);
+    printf("cmd: %s\n", cmd);
+
+    rate_ctx_t *rhl = new_rate_ctx();
+    *p = rhl;
+
+    pt = pr_new_pcap(NULL, cmd, 100, 0, 500, (pr_pcap_handler_t *)rhl);
+    if (pt == NULL)
+    {
+        printf("pr_new_pcap error\n");
+        exit(-1);
+    }
+
+    if (pr_pcap_start(pt) < 0)
+    {
+        printf("pr_pcap_start error\n");
+        exit(-1);
+    }
+
+
+    for ( ; ; )
+    {
+        sleep(1);
+        printf("02s Rate: %f\tMax-Rate:%f\n", rhl->rate_02.rate, rhl->rate_02.rate_max);
+        printf("10s Rate: %f\tMax-Rate:%f\n", rhl->rate_10.rate, rhl->rate_10.rate_max);
+        printf("40s Rate: %f\tMax-Rate:%f\n", rhl->rate_40.rate, rhl->rate_40.rate_max);
+        //fflush(stdin);
+    }
+
+    return 0;
+}
