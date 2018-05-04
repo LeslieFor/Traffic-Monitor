@@ -64,7 +64,7 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
     /* Store Data Length */
     tail = get_tail(rhl->q);
 
-    if (tail != NULL && hdr->ts.tv_sec == tail->ts.tv_sec)
+    if (tail != NULL && hdr->ts.tv_sec <= tail->ts.tv_sec)
     {
         tail->size += hdr->len;
     }
