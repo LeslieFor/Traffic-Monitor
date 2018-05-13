@@ -40,6 +40,7 @@ struct rate_ctx_s {
 
 
 rate_ctx_t *new_rate_ctx();
-int rate_init(rate_ctx_t **);
+int rate_init_tx(rate_ctx_t **p);
+int rate_init_rx(rate_ctx_t **p);
 
 #endif
