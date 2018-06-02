@@ -143,19 +143,30 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
     return NULL;
 }
 
-int rate_init_rx(rate_ctx_t **p)
+int rate_init_rx(rate_ctx_t **p, char *mac)
 {
-    char cmd[512] = {0x00};
-    char mac[128] = {0x00};
-    pr_pcap_t *pt =  NULL;
+    char cmd[512]     = {0x00};
+    char def_mac[128] = {0x00};
+    pr_pcap_t *pt     =  NULL;
 
-    if (get_mac(mac, 128) < 0)
+    if (mac == NULL)
     {
-        printf("get_mac error\n");
-        exit(-1);
+        printf("Use Default Mac\n");
+
+        if (get_mac(def_mac, 128) < 0)
+        {
+            printf("get_mac error\n");
+            exit(-1);
+        }
+
+        printf("Default Mac: %s\n", def_mac);
+    }
+    else
+    {
+        printf("Use Give Mac: %s\n", mac);
     }
 
-    sprintf(cmd, "tcp and ether dst %s", mac);
+    sprintf(cmd, "tcp and ether src %s", mac == NULL ? def_mac : mac);
     printf("cmd: %s\n", cmd);
 
     rate_ctx_t *rhl = new_rate_ctx();
@@ -188,19 +199,30 @@ int rate_init_rx(rate_ctx_t **p)
     return 0;
 }
 
-int rate_init_tx(rate_ctx_t **p)
+int rate_init_tx(rate_ctx_t **p, char *mac)
 {
-    char cmd[512] = {0x00};
-    char mac[128] = {0x00};
-    pr_pcap_t *pt =  NULL;
+    char cmd[512]     = {0x00};
+    char def_mac[128] = {0x00};
+    pr_pcap_t *pt     =  NULL;
 
-    if (get_mac(mac, 128) < 0)
+    if (mac == NULL)
     {
-        printf("get_mac error\n");
-        exit(-1);
+        printf("Use Default Mac\n");
+
+        if (get_mac(def_mac, 128) < 0)
+        {
+            printf("get_mac error\n");
+            exit(-1);
+        }
+
+        printf("Default Mac: %s\n", def_mac);
+    }
+    else
+    {
+        printf("Use Give Mac: %s\n", mac);
     }
 
-    sprintf(cmd, "tcp and ether src %s", mac);
+    sprintf(cmd, "tcp and ether src %s", mac == NULL ? def_mac : mac);
     printf("cmd: %s\n", cmd);
 
     rate_ctx_t *rhl = new_rate_ctx();

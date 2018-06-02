@@ -4,15 +4,15 @@
 
 #include "mac.h"
 #include "rate.h"
-#include "pear_pcap.h"
+//#include "pear_pcap.h"
 
 int main(int argc, char *argv[])
 {
     rate_ctx_t *rate_tx = NULL;
     rate_ctx_t *rate_rx = NULL;
 
-    rate_init_tx(&rate_tx);
-    rate_init_rx(&rate_rx);
+    rate_init_tx(&rate_tx, NULL);
+    rate_init_rx(&rate_rx, NULL);
 
     for ( ; ; )
     {
