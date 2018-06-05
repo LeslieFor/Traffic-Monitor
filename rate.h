@@ -28,6 +28,7 @@ typedef struct rate_ctx_s rate_ctx_t;
 struct rate_ctx_s {
     pr_pcap_handler_t handler;
 
+    rate_t  rate_01;
     rate_t  rate_02;
     rate_t  rate_10;
     rate_t  rate_40;
