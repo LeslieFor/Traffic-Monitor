@@ -101,6 +101,7 @@ void *rate_handle_timestamp(pr_pcap_handler_t *phl, struct pcap_pkthdr *hdr, cha
         if (rhl->q->capacity < rhl->q->size + 1)
         {
             npop = (rate_node_t *) pop(rhl->q);
+            free(npop);
         }
 
         put(rhl->q, temp);
