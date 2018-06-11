@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "queue.h"
-#include "pear_pcap.h"
+#include "les_pcap.h"
 
 typedef struct rate_s rate_t;
 

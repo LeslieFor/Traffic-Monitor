@@ -4,7 +4,6 @@
 
 #include "mac.h"
 #include "rate.h"
-//#include "pear_pcap.h"
 
 int main(int argc, char *argv[])
 {

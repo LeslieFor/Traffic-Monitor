@@ -4,7 +4,7 @@
 
 #include "mac.h"
 #include "rate.h"
-#include "pear_pcap.h"
+#include "les_pcap.h"
 
 void *rate_handle(pr_pcap_handler_t *, struct pcap_pkthdr *, char *);
 void *rate_handle_timestamp(pr_pcap_handler_t *, struct pcap_pkthdr *, char *);
